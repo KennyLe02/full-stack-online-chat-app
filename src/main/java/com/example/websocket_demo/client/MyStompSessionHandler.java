@@ -18,6 +18,8 @@ public class MyStompSessionHandler extends StompSessionHandlerAdapter {
     @Override
     public void afterConnected(StompSession session, StompHeaders connectedHeaders){
         System.out.println("Client Connected");
+        session.send("/app/connect",username);
+
         session.subscribe("/topic/messages", new StompFrameHandler() {
             //payload means incoming JSON data being sent that's being converted
             @Override
