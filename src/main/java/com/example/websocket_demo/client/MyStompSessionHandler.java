@@ -17,8 +17,9 @@ public class MyStompSessionHandler extends StompSessionHandlerAdapter {
 
     @Override
     public void afterConnected(StompSession session, StompHeaders connectedHeaders){
+        System.out.println("Client Connected");
         session.subscribe("/topic/messages", new StompFrameHandler() {
-            //payload means incoming JSON data being sent thats being converted
+            //payload means incoming JSON data being sent that's being converted
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return Message.class;
@@ -38,6 +39,7 @@ public class MyStompSessionHandler extends StompSessionHandlerAdapter {
                 }
             }
         });
+        System.out.println("Client Subscribed to /topic/messages");
     }
     @Override
     public void handleTransportError(StompSession session, Throwable exception){

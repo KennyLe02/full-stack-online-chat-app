@@ -11,6 +11,7 @@ import org.springframework.web.socket.sockjs.client.Transport;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MyStompClient {
     //stomp sessions allow us to connect to a stomp sever which is what our websocket sever is based on
@@ -19,7 +20,7 @@ public class MyStompClient {
     private String username;
 
     //constructor
-    public MyStompClient(String username){
+    public MyStompClient(String username) throws ExecutionException, InterruptedException {
         this.username = username;
 
         List<Transport> transports = new ArrayList<>();
@@ -31,5 +32,7 @@ public class MyStompClient {
 
         StompSessionHandler sessionHandler = new MyStompSessionHandler(username);
         String url = "ws://localhost:8080/ws";
+
+        session = stompClient.connectAsync(url, sessionHandler).get();
     }
 }
