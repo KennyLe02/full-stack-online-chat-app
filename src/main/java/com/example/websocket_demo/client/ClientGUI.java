@@ -8,12 +8,18 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.concurrent.ExecutionException;
 
 public class ClientGUI extends JFrame {
     private JPanel connectedUsersPanel,messagePanel;
+    private MyStompClient myStompClient;
+    private String username;
 
-    public ClientGUI(String username){
+
+    public ClientGUI(String username) throws ExecutionException, InterruptedException {
         super("User: " + username);
+        this.username = username;
+        myStompClient = new MyStompClient(username);
 
         setSize(1218,685);
         setLocationRelativeTo(null);
@@ -23,6 +29,7 @@ public class ClientGUI extends JFrame {
             public void windowClosing(WindowEvent e) {
                int option = JOptionPane.showConfirmDialog( ClientGUI.this,"Do you really want to leave?","Exit",JOptionPane.YES_NO_OPTION);
                 if(option == JOptionPane.YES_OPTION){
+                    myStompClient.disconnectUser(username);
                     ClientGUI.this.dispose();
                 }
             }
@@ -60,8 +67,6 @@ public class ClientGUI extends JFrame {
         messagePanel.setLayout(new BoxLayout(messagePanel,BoxLayout.Y_AXIS));
         messagePanel.setBackground(Utilities.transparentColor);
         chatPanel.add(messagePanel, BorderLayout.CENTER);
-
-        messagePanel.add(createChatMessageConponent(new Message("Kenny","Hello world!")));
 
         JPanel inputPanel = new JPanel();
         inputPanel.setBorder(Utilities.addPadding(10,10,10,10));
