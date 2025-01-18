@@ -4,13 +4,11 @@ import com.example.websocket_demo.Message;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
-public class ClientGUI extends JFrame {
+public class ClientGUI extends JFrame implements MessageListener{
     private JPanel connectedUsersPanel,messagePanel;
     private MyStompClient myStompClient;
     private String username;
@@ -19,7 +17,7 @@ public class ClientGUI extends JFrame {
     public ClientGUI(String username) throws ExecutionException, InterruptedException {
         super("User: " + username);
         this.username = username;
-        myStompClient = new MyStompClient(username);
+        myStompClient = new MyStompClient(this, username);
 
         setSize(1218,685);
         setLocationRelativeTo(null);
@@ -85,14 +83,15 @@ public class ClientGUI extends JFrame {
 
                     inputField.setText("");
 
-                    messagePanel.add(createChatMessageConponent(new Message("Kenny",input)));
-                    repaint();
-                    revalidate();
+
+                    myStompClient.sendMessage(new Message(username, input));
+
                 }
             }
         });
         inputField.setBackground(Utilities.secondaryColor);
         inputField.setForeground(Utilities.textColor);
+        inputField.setBorder(Utilities.addPadding(0,10,0,10));
         inputField.setFont(new Font("Inter",Font.PLAIN,16));
         inputField.setPreferredSize(new Dimension(inputPanel.getWidth(),50));
         inputPanel.add(inputField,BorderLayout.CENTER);
@@ -118,5 +117,33 @@ public class ClientGUI extends JFrame {
         chatMessage.add(messageLabel);
 
         return chatMessage;
+    }
+   @Override
+   public void onMessageReceive(Message message){
+       messagePanel.add(createChatMessageConponent(message));
+       revalidate();
+       repaint();
+    }
+    @Override
+    public void onActiveUsersUpdated(ArrayList<String> users){
+
+        if (connectedUsersPanel.getComponents().length >= 2){
+            connectedUsersPanel.remove(1);
+        }
+
+        JPanel userListPanel = new JPanel();
+        userListPanel.setBackground(Utilities.transparentColor);
+        userListPanel.setLayout(new BoxLayout(userListPanel, BoxLayout.Y_AXIS));
+
+        for(String user: users){
+            JLabel username = new JLabel();
+            username.setText(user);
+            username.setForeground(Utilities.textColor);
+            username.setFont(new Font("Inter",Font.BOLD,16));
+            userListPanel.add(username);
+        }
+        connectedUsersPanel.add(userListPanel);
+        revalidate();
+        repaint();
     }
 }
